@@ -5,6 +5,7 @@
 | Wersja dokumentu | 1.0 (MVP) |
 | Data | 2026-10-11 |
 | Status | Draft do akceptacji |
+| Decyzje i akceptacja presetów | Właściciel produktu |
 | Typ produktu | Aplikacja webowa (SPA, działa w przeglądarce) |
 
 ---
@@ -222,7 +223,7 @@ Priorytety: **M** = Must (MVP), **S** = Should (MVP, jeśli wystarczy czasu), **
 - **Pierwsze uruchomienie:** od razu ładuje się preset „Zrównoważony” z budżetem przykładowym 500 000 zł. Użytkownik widzi gotowy wynik bez wypełniania formularza.
 - **Responsywność:** desktop od 1280 px, tablet, telefon od 360 px. Na telefonie sekcje układają się pionowo, a wykresy mają pełną szerokość.
 - **Format liczb:** polski (`1 267 500 zł`, `153,5%`).
-- **Język:** interfejs po polsku. Teksty w plikach tłumaczeń (i18n), żeby łatwo dodać angielski.
+- **Język:** wyłącznie polski. Teksty interfejsu trzymane w jednym pliku, ale bez mechanizmu wielu języków w MVP.
 - **Motyw jasny i ciemny** zgodny z ustawieniem systemu.
 
 ## 8. Wymagania niefunkcjonalne
@@ -230,7 +231,7 @@ Priorytety: **M** = Must (MVP), **S** = Should (MVP, jeśli wystarczy czasu), **
 | ID | Obszar | Wymaganie |
 |---|---|---|
 | NFR-01 | Wydajność | Pierwsze załadowanie < 2 s na łączu 4G; przeliczenie i odświeżenie wykresów < 100 ms. |
-| NFR-02 | Prywatność | Brak backendu i kont. Dane zostają w przeglądarce użytkownika. Brak śledzących ciasteczek. Analityka (jeśli będzie) bez cookies i bez danych osobowych. |
+| NFR-02 | Prywatność | Brak backendu i kont. Dane zostają w przeglądarce użytkownika. Brak cookies i brak jakiejkolwiek analityki użycia ani skryptów firm trzecich śledzących użytkownika. |
 | NFR-03 | Trwałość danych | Komunikat w aplikacji: dane są zapisane w tej przeglądarce. Wyczyszczenie danych przeglądarki je usuwa, więc warto robić eksport JSON. Przypomnienie o kopii po 5 zapisanych scenariuszach. |
 | NFR-04 | Dostępność | WCAG 2.1 AA: kontrast, obsługa klawiaturą (suwaki), etykiety ARIA, tabelaryczna alternatywa dla wykresów. |
 | NFR-05 | Przeglądarki | 2 ostatnie wersje Chrome, Edge, Firefox i Safari (desktop i mobile). |
@@ -277,15 +278,14 @@ Plik eksportu: `{ "app": "budget-roi-planner", "exportedAt": "...", "scenarios":
 
 ## 11. Metryki sukcesu
 
-| Metryka | Cel po 3 miesiącach |
-|---|---|
-| Czas do pierwszego wyniku (od wejścia do zmiany budżetu lub presetu) | mediana < 60 s |
-| Odsetek sesji z zapisanym ≥ 1 scenariuszem | ≥ 40% |
-| Odsetek sesji z użyciem porównania | ≥ 20% |
-| Średnia liczba scenariuszy na aktywnego użytkownika | ≥ 3 |
-| Błędy obliczeń zgłoszone przez użytkowników | 0 |
+Aplikacja **nie ma analityki użycia** (decyzja właściciela produktu). Sukces oceniamy testami z użytkownikami i opiniami, a nie danymi z aplikacji.
 
-(Pomiar przez analitykę bez cookies, np. zdarzenia anonimowe. Do potwierdzenia, patrz sekcja 14.)
+| Metryka | Sposób pomiaru | Cel |
+|---|---|---|
+| Czas od wejścia do pierwszego wyniku | Test z 5 użytkownikami, pomiar stoperem | mediana < 60 s |
+| Przygotowanie i porównanie 3 scenariuszy bez pomocy | Ten sam test, zadanie do wykonania | ≥ 4 z 5 osób |
+| Zrozumienie wyniku (ROI całkowite, różnice w porównaniu) | Pytania po teście | ≥ 4 z 5 poprawnych odpowiedzi |
+| Błędy obliczeń | Testy automatyczne + zgłoszenia użytkowników | 0 |
 
 ## 12. Kryteria akceptacji MVP (wybrane)
 
@@ -307,12 +307,16 @@ Plik eksportu: `{ "app": "budget-roi-planner", "exportedAt": "...", "scenarios":
 | Utrata danych po wyczyszczeniu przeglądarki | Frustracja użytkownika | Komunikat o lokalnym zapisie, przypomnienia o eksporcie JSON |
 | Trudność przypisania sprzedaży do konkretnego kanału (np. radio) | Niedoszacowanie radia | Opis w „O metodzie”; w wersji 2 parametr „efekt wspierający” |
 
-## 14. Otwarte pytania
+## 14. Decyzje
 
-1. Czy potrzebna jest analityka użycia? Jeśli tak: jakie narzędzie bez cookies?
-2. Czy wersja angielska ma wejść do MVP, czy później?
-3. Czy presety ROI skalibrować na danych historycznych z konkretnych kampanii (jeśli są dostępne)?
-4. Kto zatwierdza ostateczne wartości presetów (marketing / finanse)?
+| Pytanie | Decyzja |
+|---|---|
+| Profil firmy dla domyślnego podziału | Kilka presetów do wyboru (sekcja 5.2), domyślny „Zrównoważony” |
+| Zapis scenariuszy | Lokalnie w przeglądarce + eksport i import JSON, bez kont |
+| Analityka użycia | Brak w MVP |
+| Język | Tylko polski |
+| Źródło wartości ROI w presetach | Założenia startowe (brak danych historycznych), z widocznym zastrzeżeniem; użytkownik koryguje je w aplikacji |
+| Akceptacja wartości presetów | Właściciel produktu |
 
 ## 15. Roadmapa
 
@@ -321,4 +325,4 @@ Plik eksportu: `{ "app": "budget-roi-planner", "exportedAt": "...", "scenarios":
 | **MVP (v1.0)** | Wszystkie wymagania M z sekcji 6, eksport i import JSON, presety, porównanie do 4 scenariuszy |
 | **v1.1** | Wymagania S: blokada kanału, kwoty w PLN, ROI na marży, eksport CSV, ostrzeżenia o widełkach |
 | **v2.0** | Konta i zapis w chmurze, współdzielenie scenariuszy; podział na miesiące i kwartały z sezonowością; krzywe nasycenia i **optymalizator** (proponuje podział maksymalizujący ROI w zadanych widełkach) |
-| **v2.x** | Dodatkowe kanały (TV, outdoor, prasa, influencerzy, e-mail); własne kanały; import rzeczywistych wyników (plan vs wykonanie); eksport PDF |
+| **v2.x** | Dodatkowe kanały (TV, outdoor, prasa, influencerzy, e-mail); własne kanały; import rzeczywistych wyników (plan vs wykonanie); eksport PDF; wersja angielska (jeśli pojawi się potrzeba) |
