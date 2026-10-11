@@ -1,0 +1,15 @@
+{
+  "name": "budget-roi-planner",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Planer budżetu marketingowego i ROI – czysty HTML, CSS i JavaScript",
+  "scripts": {
+    "start": "python3 -m http.server 4173",
+    "test": "node --test test/*.test.mjs",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0"
+  }
+}

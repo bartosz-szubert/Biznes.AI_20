@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Planer budżetu i ROI</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Przejdź do treści</a>
+
+    <div class="app">
+      <header class="app-header">
+        <div>
+          <h1>Planer budżetu i ROI</h1>
+          <div class="muted" id="header-status">Roczny budżet marketingowy: social media, WWW, radio · plan bez zapisu</div>
+        </div>
+        <button type="button" id="new-plan">Nowy plan</button>
+      </header>
+
+      <nav class="tabs" role="tablist" aria-label="Sekcje aplikacji">
+        <button type="button" role="tab" id="tab-planner" data-tab="planner" aria-selected="true" aria-controls="main">Planer <span class="badge" id="warn-count" hidden></span></button>
+        <button type="button" role="tab" id="tab-scenarios" data-tab="scenarios" aria-selected="false" aria-controls="main">Scenariusze <span class="badge" id="scen-count" hidden></span></button>
+        <button type="button" role="tab" id="tab-compare" data-tab="compare" aria-selected="false" aria-controls="main">Porównanie</button>
+        <button type="button" role="tab" id="tab-about" data-tab="about" aria-selected="false" aria-controls="main">O metodzie</button>
+      </nav>
+
+      <main id="main">
+        <!-- ===================== PLANER ===================== -->
+        <section id="view-planner" aria-labelledby="planner-title">
+          <h2 id="planner-title" class="sr-only">Planer budżetu</h2>
+
+          <div class="card">
+            <div class="row">
+              <label class="field">
+                Budżet roczny (PLN)
+                <input type="number" id="budget" min="0" max="1000000000" step="1000" class="num-input" style="width: 12rem; text-align: left" aria-describedby="preset-desc" />
+              </label>
+              <label class="field">
+                Preset (profil firmy)
+                <select id="preset"></select>
+              </label>
+              <button type="button" id="restore">Przywróć preset</button>
+            </div>
+            <p id="preset-desc" class="muted" style="margin: 0.5rem 0 0"></p>
+            <p class="muted legend-note">Wartości ROI to założenia startowe, nie dane rynkowe – dopasuj je do własnych kampanii.</p>
+            <p id="modified-note" class="muted" hidden></p>
+          </div>
+
+          <div class="kpis" aria-live="polite">
+            <div class="kpi"><div class="label">Budżet</div><div class="value" data-kpi="budget">–</div></div>
+            <div class="kpi"><div class="label">Prognozowany przychód</div><div class="value" data-kpi="revenue">–</div></div>
+            <div class="kpi"><div class="label">Zysk</div><div class="value" data-kpi="profit">–</div></div>
+            <div class="kpi"><div class="label">ROAS</div><div class="value" data-kpi="roas">–</div></div>
+            <div class="kpi hero"><div class="label">ROI całkowite</div><div class="value" data-kpi="roi">–</div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <h2>Podział budżetu między kanały</h2>
+              <span class="status" id="sum-status" role="status"></span>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col" class="check-cell"><span class="sr-only">Blokada</span></th>
+                    <th scope="col">Kanał</th>
+                    <th scope="col">Udział</th>
+                    <th scope="col" class="num">Kwota</th>
+                    <th scope="col" class="num">ROI (%)</th>
+                    <th scope="col" class="num">Zysk</th>
+                    <th scope="col" class="num">Przychód</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-row="social">
+                    <td class="check-cell"><input type="checkbox" class="lock" data-id="social" aria-label="Zablokuj kanał Social media" title="Zablokowany kanał nie zmienia się przy wyrównywaniu" /></td>
+                    <td><span class="channel-chip" title="Płatne kampanie i prowadzenie profili (Meta, Instagram, TikTok, LinkedIn)."><span class="swatch social" aria-hidden="true"></span>Social media <span class="lock-badge badge" hidden>zablokowany</span></span></td>
+                    <td>
+                      <div style="display: flex; gap: 0.5rem; align-items: center">
+                        <input type="range" class="range share-range" data-id="social" min="0" max="100" step="0.1" aria-label="Udział kanału Social media w %" style="accent-color: var(--series-social)" />
+                        <input type="number" class="num-input share-num" data-id="social" min="0" max="100" step="0.1" style="width: 5rem" aria-label="Udział kanału Social media w procentach" />
+                        <span>%</span>
+                      </div>
+                    </td>
+                    <td class="num" data-out="amount"></td>
+                    <td class="num"><input type="number" class="num-input roi-num" data-id="social" min="-100" max="1000" step="1" aria-label="ROI kanału Social media w procentach" /></td>
+                    <td class="num" data-out="profit"></td>
+                    <td class="num" data-out="revenue"></td>
+                  </tr>
+                  <tr data-row="www">
+                    <td class="check-cell"><input type="checkbox" class="lock" data-id="www" aria-label="Zablokuj kanał WWW" title="Zablokowany kanał nie zmienia się przy wyrównywaniu" /></td>
+                    <td><span class="channel-chip" title="Strona i sklep, SEO, content, Google Ads (wyszukiwarka), e-mail marketing przez stronę."><span class="swatch www" aria-hidden="true"></span>WWW <span class="lock-badge badge" hidden>zablokowany</span></span></td>
+                    <td>
+                      <div style="display: flex; gap: 0.5rem; align-items: center">
+                        <input type="range" class="range share-range" data-id="www" min="0" max="100" step="0.1" aria-label="Udział kanału WWW w %" style="accent-color: var(--series-www)" />
+                        <input type="number" class="num-input share-num" data-id="www" min="0" max="100" step="0.1" style="width: 5rem" aria-label="Udział kanału WWW w procentach" />
+                        <span>%</span>
+                      </div>
+                    </td>
+                    <td class="num" data-out="amount"></td>
+                    <td class="num"><input type="number" class="num-input roi-num" data-id="www" min="-100" max="1000" step="1" aria-label="ROI kanału WWW w procentach" /></td>
+                    <td class="num" data-out="profit"></td>
+                    <td class="num" data-out="revenue"></td>
+                  </tr>
+                  <tr data-row="radio">
+                    <td class="check-cell"><input type="checkbox" class="lock" data-id="radio" aria-label="Zablokuj kanał Radio" title="Zablokowany kanał nie zmienia się przy wyrównywaniu" /></td>
+                    <td><span class="channel-chip" title="Spoty w radiu lokalnym lub ogólnopolskim, sponsoring audycji, radio internetowe."><span class="swatch radio" aria-hidden="true"></span>Radio <span class="lock-badge badge" hidden>zablokowany</span></span></td>
+                    <td>
+                      <div style="display: flex; gap: 0.5rem; align-items: center">
+                        <input type="range" class="range share-range" data-id="radio" min="0" max="100" step="0.1" aria-label="Udział kanału Radio w %" style="accent-color: var(--series-radio)" />
+                        <input type="number" class="num-input share-num" data-id="radio" min="0" max="100" step="0.1" style="width: 5rem" aria-label="Udział kanału Radio w procentach" />
+                        <span>%</span>
+                      </div>
+                    </td>
+                    <td class="num" data-out="amount"></td>
+                    <td class="num"><input type="number" class="num-input roi-num" data-id="radio" min="-100" max="1000" step="1" aria-label="ROI kanału Radio w procentach" /></td>
+                    <td class="num" data-out="profit"></td>
+                    <td class="num" data-out="revenue"></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td></td>
+                    <th scope="row">Razem</th>
+                    <td class="num" data-out="sum-share"></td>
+                    <td class="num" data-out="total-amount"></td>
+                    <td class="num" data-out="total-roi"></td>
+                    <td class="num" data-out="total-profit"></td>
+                    <td class="num" data-out="total-revenue"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div class="row" style="margin-top: 0.75rem">
+              <button type="button" id="balance">Wyrównaj do 100%</button>
+              <span class="muted">Różnica rozkładana proporcjonalnie na niezablokowane kanały (poza ostatnio zmienionym, jeśli to możliwe).</span>
+            </div>
+            <div id="balance-error" class="alert error" role="alert" hidden>Suma udziałów musi wynosić 100%, aby zapisać scenariusz.</div>
+            <div id="warnings"></div>
+          </div>
+
+          <div class="card">
+            <label class="row" style="align-items: center">
+              <input type="checkbox" id="margin-on" />
+              <span>Pokaż ROI na marży</span>
+            </label>
+            <div class="row" id="margin-fields" style="margin-top: 0.5rem" hidden>
+              <label class="field">
+                Marża brutto (%)
+                <input type="number" id="margin-pct" min="0" max="100" step="1" class="num-input" />
+              </label>
+              <span class="muted">ROI na marży: <strong id="margin-result">–</strong> (przychód × marża − budżet, w stosunku do budżetu)</span>
+            </div>
+            <p class="muted" style="margin-bottom: 0">
+              Jak liczymy: ROI kanału = (przychód − budżet) / budżet. ROI całkowite = zysk całkowity / budżet całkowity, czyli średnia ROI kanałów ważona udziałem w budżecie.
+            </p>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <h2>Podział budżetu</h2>
+              <div id="donut"></div>
+            </div>
+            <div class="card">
+              <h2>Budżet i przychód według kanałów</h2>
+              <div id="bars"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 id="save-title">Zapisz jako scenariusz</h2>
+            <p class="muted" id="dirty-note" style="margin-top: 0" hidden>Masz niezapisane zmiany.</p>
+            <div class="row">
+              <label class="field grow">
+                Nazwa scenariusza (wymagana, maks. 60 znaków)
+                <input type="text" id="scen-name" maxlength="60" placeholder="np. Wariant A – więcej social" />
+              </label>
+              <label class="field grow">
+                Notatka (opcjonalna, maks. 500 znaków)
+                <input type="text" id="scen-note" maxlength="500" />
+              </label>
+            </div>
+            <div class="row" style="margin-top: 0.75rem">
+              <button type="button" id="save-update" class="primary" hidden>Zapisz zmiany w scenariuszu</button>
+              <button type="button" id="save-new" class="primary">Zapisz jako nowy scenariusz</button>
+            </div>
+            <div id="save-error" class="alert error" role="alert" hidden></div>
+          </div>
+        </section>
+
+        <!-- ===================== SCENARIUSZE ===================== -->
+        <section id="view-scenarios" aria-labelledby="scenarios-title" hidden></section>
+
+        <!-- ===================== PORÓWNANIE ===================== -->
+        <section id="view-compare" aria-labelledby="compare-title" hidden></section>
+
+        <!-- ===================== O METODZIE ===================== -->
+        <section id="view-about" class="card about" aria-labelledby="about-title" hidden>
+          <h2 id="about-title">O metodzie</h2>
+          <p>Aplikacja pokazuje <strong>prognozę</strong> zwrotu z inwestycji na podstawie założeń, które wpisujesz. To nie jest gwarancja wyniku ani doradztwo finansowe.</p>
+
+          <h3>Wzory</h3>
+          <div class="formula">
+            Budżet kanału = Budżet roczny × udział<br />
+            Zysk kanału = Budżet kanału × ROI kanału<br />
+            Przychód kanału = Budżet kanału + Zysk kanału<br />
+            ROI całkowite = Zysk całkowity / Budżet całkowity (= Σ udział × ROI kanału)<br />
+            ROAS = Przychód całkowity / Budżet całkowity
+          </div>
+
+          <h3>Kanały</h3>
+          <dl>
+            <div><dt>Social media</dt><dd>Płatne kampanie i prowadzenie profili (Meta, Instagram, TikTok, LinkedIn).</dd></div>
+            <div><dt>WWW</dt><dd>Strona i sklep, SEO, content, Google Ads (wyszukiwarka), e-mail marketing przez stronę.</dd></div>
+            <div><dt>Radio</dt><dd>Spoty w radiu lokalnym lub ogólnopolskim, sponsoring audycji, radio internetowe.</dd></div>
+          </dl>
+
+          <h3>Presety</h3>
+          <p>Presety to zbalansowane punkty startowe, a nie maksymalizacja ROI. Każdy kanał ma swoje widełki udziału, bo każda kolejna złotówka w tym samym kanale przynosi mniej (nasycenie odbiorców), a rozłożenie budżetu zmniejsza ryzyko.</p>
+          <ul id="about-presets"></ul>
+          <p class="legend-note">Wartości ROI w presetach to założenia startowe, nie dane rynkowe. Zanim podejmiesz decyzję, skoryguj je na podstawie własnych wyników z poprzednich kampanii.</p>
+
+          <h3>Prywatność i dane</h3>
+          <p>Aplikacja działa w całości w Twojej przeglądarce. Scenariusze zapisują się lokalnie i nie są wysyłane na serwer. Wyczyszczenie danych przeglądarki je usuwa, więc regularnie eksportuj je do pliku JSON.</p>
+        </section>
+      </main>
+
+      <dialog id="dialog" class="dialog" aria-labelledby="dialog-title"></dialog>
+
+      <div id="toast" class="toast" role="status" hidden></div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
