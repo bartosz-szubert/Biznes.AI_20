@@ -3,28 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Planer budżetu marketingowego i ROI – czysty HTML, CSS i JavaScript",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc -b",
-    "test": "vitest run",
+    "start": "python3 -m http.server 4173",
+    "test": "node --test test/*.test.mjs",
     "test:e2e": "playwright test"
   },
-  "dependencies": {
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "recharts": "^3.10.1",
-    "zod": "^4.6.5"
-  },
   "devDependencies": {
-    "@playwright/test": "^1.64.0",
-    "@types/node": "^22.20.5",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.1.2",
-    "typescript": "~5.9.3",
-    "vite": "^8.3.4",
-    "vitest": "^5.0.3"
+    "@playwright/test": "^1.64.0"
   }
 }

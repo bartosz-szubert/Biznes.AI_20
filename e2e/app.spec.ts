@@ -113,7 +113,7 @@ test('pierwszy ekran nie ma błędów w konsoli i wykresy się renderują', asyn
   });
   await gotoPlanner(page);
   await expect(page.getByRole('img', { name: /Podział budżetu/ })).toBeVisible();
-  await expect(page.locator('.recharts-surface').first()).toBeVisible();
+  await expect(page.locator('.chart-svg').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 

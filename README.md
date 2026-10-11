@@ -3,32 +3,35 @@
 Aplikacja webowa do planowania rocznego budżetu marketingowego (social media, WWW, radio) i szacowania ROI.
 Specyfikacja: [docs/PRD.md](docs/PRD.md).
 
-Dane zostają w przeglądarce (localStorage). Nic nie jest wysyłane na serwer.
+Czysty HTML, CSS i JavaScript (ES modules). Bez frameworka i bez kroku budowania. Dane zostają w przeglądarce (localStorage), nic nie jest wysyłane na serwer.
 
 ## Uruchomienie
 
+Aplikacja to zwykłe pliki statyczne, więc wystarczy dowolny serwer HTTP (moduły ES nie działają przez `file://`):
+
 ```bash
-npm install
-npm run dev          # tryb developerski
-npm run build        # typy + build produkcyjny do dist/
-npm run preview      # podgląd builda
+npm start          # python3 -m http.server 4173  → http://localhost:4173
 ```
 
 ## Testy
 
 ```bash
-npm test             # testy jednostkowe modułu obliczeń (Vitest)
-npm run test:e2e     # testy end-to-end (Playwright), buduje i uruchamia preview
+npm install
+npm test           # testy jednostkowe modułu obliczeń (node:test, bez zależności)
+npm run test:e2e   # testy end-to-end (Playwright), uruchamia serwer sam
 ```
 
 Jeśli Playwright ma używać zainstalowanej przeglądarki Chromium, ustaw `PW_CHROMIUM_PATH=/ścieżka/do/chrome`.
 
 ## Struktura
 
-- `src/domain/` – czysta logika: obliczenia (`calc.ts`), presety, przydział przy wyrównywaniu, schemat i import/eksport (zod), zarządzanie scenariuszami.
-- `src/components/` – interfejs (planer, lista scenariuszy, porównanie, wykresy Recharts, „O metodzie”).
-- `src/storage/` – zapis scenariuszy w localStorage z obsługą błędów.
-- `e2e/` – testy akceptacyjne z PRD (sekcja 12).
+- `index.html` – układ i wszystkie ekrany (planer, scenariusze, porównanie, o metodzie).
+- `css/styles.css` – kolory jako tokeny (jasny i ciemny motyw), układ, responsywność.
+- `js/domain.js` – logika: obliczenia, presety, „Wyrównaj do 100%”, walidacja i import/eksport, formatowanie. Bez DOM, więc testowalna w Node.
+- `js/charts.js` – wykresy jako SVG (pierścień, słupki grupowane, słupki skumulowane).
+- `js/store.js` – zapis scenariuszy w localStorage z obsługą błędów.
+- `js/app.js` – stan i interfejs.
+- `test/` – testy jednostkowe. `e2e/` – testy akceptacyjne z PRD (sekcja 12).
 
 ## Wzory
 

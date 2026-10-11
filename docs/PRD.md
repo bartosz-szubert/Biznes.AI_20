@@ -265,16 +265,15 @@ Wyniki (kwoty, zysk, ROI całkowite) **nie są zapisywane**. Aplikacja liczy je 
 
 Plik eksportu: `{ "app": "budget-roi-planner", "exportedAt": "...", "scenarios": [ ... ] }`.
 
-## 10. Proponowana architektura (rekomendacja)
+## 10. Architektura
 
-- **Frontend:** React + TypeScript + Vite.
-- **Wykresy:** Recharts albo Chart.js (dostępne tooltipy, responsywność).
-- **Stan:** Zustand lub React Context. **Zapis:** IndexedDB (np. przez `idb`), localStorage jako rezerwa.
-- **Walidacja importu:** Zod (schemat scenariusza).
-- **Obliczenia:** osobny, czysty moduł `calc.ts` bez zależności od UI, w pełni pokryty testami (Vitest).
-- **Testy E2E:** Playwright.
-- **Hosting:** statyczny (np. GitHub Pages, Netlify, Vercel). Brak serwera i bazy danych.
-- **PWA (C):** praca offline po pierwszym wejściu.
+Zrealizowano jako aplikację bez frameworka i bez kroku budowania: czysty HTML, CSS i JavaScript (ES modules).
+
+- **Logika:** `js/domain.js`, bez zależności od DOM, w pełni testowalna w Node (`node:test`).
+- **Wykresy:** SVG generowane w `js/charts.js`, bez bibliotek. Rysowane w szerokości kontenera i odświeżane przy zmianie rozmiaru okna.
+- **Zapis:** localStorage (`js/store.js`) z obsługą błędów. Import sprawdzany funkcją `validateScenario`.
+- **Testy:** jednostkowe (`node:test`) i E2E (Playwright).
+- **Hosting:** dowolny statyczny serwer lub hosting plików. Brak serwera aplikacji i bazy danych.
 
 ## 11. Metryki sukcesu
 
