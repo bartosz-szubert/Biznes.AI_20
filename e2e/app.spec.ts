@@ -58,11 +58,11 @@ test('AC4 + AC6: scenariusz przetrwa odświeżenie; eksport i import JSON odtwar
   await page.getByRole('tab', { name: 'Scenariusze' }).click();
   await expect(page.getByText('Wariant A', { exact: true })).toBeVisible();
 
-  const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: /Eksportuj wszystkie/ }).click();
-  const download = await downloadPromise;
+  const json = await page.locator('#dlg-text').inputValue();
+  await page.getByRole('button', { name: 'Zamknij' }).click();
   const path = testInfo.outputPath('export.json');
-  await download.saveAs(path);
+  writeFileSync(path, json);
 
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();

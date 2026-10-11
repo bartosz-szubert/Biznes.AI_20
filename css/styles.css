@@ -553,3 +553,35 @@ th.num {
 .card .legend {
   margin-top: 0.75rem;
 }
+
+/* Okno dialogowe (zamiast confirm/prompt) */
+.dialog {
+  width: min(520px, calc(100vw - 32px));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  padding: 1.25rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.dialog h2 {
+  margin-bottom: 0.5rem;
+}
+
+.dialog input[type='text'],
+.dialog textarea {
+  width: 100%;
+  margin: 0.5rem 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.dialog-actions {
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}

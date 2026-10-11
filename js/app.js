@@ -35,6 +35,7 @@ import {
 } from './domain.js';
 import { donutChart, groupedBars, stackedShareBars, CHANNEL_COLOR } from './charts.js';
 import { loadScenarios, saveScenarios } from './store.js';
+import { openDialog } from './dialog.js';
 
 // ---------- Pomocnicze ----------
 
@@ -69,7 +70,15 @@ state.savedPlan = clonePlan(state.plan);
 
 const isDirty = () => !plansEqual(state.plan, state.savedPlan);
 const loaded = () => state.scenarios.find((s) => s.id === state.loadedId) ?? null;
-const confirmDiscard = () => !isDirty() || window.confirm('Masz niezapisane zmiany w planie. Odrzucić je?');
+async function confirmDiscard() {
+  if (!isDirty()) return true;
+  return (await openDialog({
+    title: 'Niezapisane zmiany',
+    message: 'Masz niezapisane zmiany w planie. Odrzucić je?',
+    okLabel: 'Odrzuć zmiany',
+    cancelLabel: 'Wróć do planu',
+  })) === true;
+}
 
 function commit(next) {
   state.scenarios = next;
@@ -352,8 +361,8 @@ function bindPlanner() {
   $('#save-new').addEventListener('click', () => handleSave(true));
   $('#save-update').addEventListener('click', () => handleSave(false));
 
-  $('#new-plan').addEventListener('click', () => {
-    if (!confirmDiscard()) return;
+  $('#new-plan').addEventListener('click', async () => {
+    if (!(await confirmDiscard())) return;
     const fresh = planFromPreset(DEFAULT_PRESET_ID, state.plan.totalBudget);
     state.plan = fresh;
     state.savedPlan = clonePlan(fresh);
@@ -388,9 +397,9 @@ function refreshAll() {
 
 // ---------- Scenariusze ----------
 
-function openScenario(id) {
+async function openScenario(id) {
   const s = state.scenarios.find((x) => x.id === id);
-  if (!s || !confirmDiscard()) return;
+  if (!s || !(await confirmDiscard())) return;
   const next = clonePlan(s);
   state.plan = next;
   state.savedPlan = clonePlan(next);
@@ -399,9 +408,15 @@ function openScenario(id) {
   showTab('planner');
 }
 
-function renameScenario(id) {
+async function renameScenario(id) {
   const s = state.scenarios.find((x) => x.id === id);
-  const next = window.prompt(`Nowa nazwa (maks. ${LIMITS.nameMax} znaków):`, s.name);
+  const next = await openDialog({
+    title: 'Zmień nazwę scenariusza',
+    message: `Maksymalnie ${LIMITS.nameMax} znaków.`,
+    input: s.name,
+    okLabel: 'Zapisz nazwę',
+    cancelLabel: 'Anuluj',
+  });
   if (next === null) return;
   const name = next.trim();
   if (name === '') return toast('Nazwa nie może być pusta.');
@@ -411,9 +426,15 @@ function renameScenario(id) {
   refreshAll();
 }
 
-function deleteScenario(id) {
+async function deleteScenario(id) {
   const s = state.scenarios.find((x) => x.id === id);
-  if (!window.confirm(`Usunąć scenariusz „${s.name}”? Tej operacji nie da się cofnąć.`)) return;
+  const ok = await openDialog({
+    title: 'Usunąć scenariusz?',
+    message: `„${s.name}” zniknie i nie da się tego cofnąć.`,
+    okLabel: 'Usuń',
+    cancelLabel: 'Anuluj',
+  });
+  if (ok !== true) return;
   commit(state.scenarios.filter((x) => x.id !== id));
   state.compareIds = state.compareIds.filter((x) => x !== id);
   if (state.loadedId === id) state.loadedId = null;
@@ -432,16 +453,15 @@ function toggleCompare(id) {
 function exportScenarios() {
   const selected = state.scenarios.filter((s) => state.compareIds.includes(s.id));
   const list = selected.length > 0 ? selected : state.scenarios;
-  const blob = new Blob([JSON.stringify(buildExportFile(list), null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'scenariusze-budzet-roi.json';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  toast(`Wyeksportowano ${list.length} scenariusz(y).`);
+  const json = JSON.stringify(buildExportFile(list), null, 2);
+  openDialog({
+    title: `Eksport: ${list.length} scenariusz(y)`,
+    message: 'Skopiuj tekst i zapisz go w pliku z rozszerzeniem .json. Import wczytuje taki plik z zakładki „Scenariusze”.',
+    textarea: json,
+    okLabel: 'Zamknij',
+    cancelLabel: '',
+    copy: true,
+  });
 }
 
 async function handleImportFile(file) {
